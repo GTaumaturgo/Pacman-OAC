@@ -20,30 +20,30 @@
 	# arquivos para carregar mapa na memória e as texturas corretamente
 	#map_width: .space  1
 	#map_height: .space 1
-	mapbin: .asciiz "teste.bin"
+	mapbin: .asciiz "mapas/teste.bin"
 	bufbin: .space 768
-	maptex: .asciiz "teste.texture"
+	maptex: .asciiz "mapas/teste.texture"
 	buftex: .space 768
 	# arquivos com as texturas.
-	tex0: .asciiz "parede-vertical.bin"
+	tex0: .asciiz "imagens/parede-vertical.bin"
 	buf0: .space 100
-	tex1: .asciiz "parede-horizontal.bin"
+	tex1: .asciiz "imagens/parede-horizontal.bin"
 	buf1: .space 100
-	tex2: .asciiz "parede-curva-CD.bin"
+	tex2: .asciiz "imagens/parede-curva-CD.bin"
 	buf2: .space 100
-	tex3: .asciiz "parede-curva-BE.bin"
+	tex3: .asciiz "imagens/parede-curva-BE.bin"
 	buf3: .space 100
-	tex4: .asciiz "parede-curva-BD.bin"
+	tex4: .asciiz "imagens/parede-curva-BD.bin"
 	buf4: .space 100
-	tex5: .asciiz "parede-curva-CE.bin"
+	tex5: .asciiz "imagens/parede-curva-CE.bin"
 	buf5: .space 100
-	tex6: .asciiz "parede-sozinha.bin"
+	tex6: .asciiz "imagens/parede-sozinha.bin"
 	buf6: .space 100			
-	tex7: .asciiz "comida.bin"
+	tex7: .asciiz "imagens/comida.bin"
 	buf7: .space 100
-	tex8: .asciiz "comida-grande.bin"
+	tex8: .asciiz "imagens/comida-grande.bin"
 	buf8: .space 100
-	tex9: .asciiz "parede-vazia.bin"
+	tex9: .asciiz "imagens/parede-vazia.bin"
 	buf9: .space 100
 	
 .text
