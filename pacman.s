@@ -20,9 +20,9 @@
 	# arquivos para carregar mapa na memória e as texturas corretamente
 	#map_width: .space  1
 	#map_height: .space 1
-	mapbin: .asciiz "mapas/teste.bin"
+	mapbin: .asciiz "mapas/simples.bin"
 	bufbin: .space 768
-	maptex: .asciiz "mapas/teste.texture"
+	maptex: .asciiz "mapas/simples.texture"
 	buftex: .space 768
 	# arquivos com as texturas.
 	tex0: .asciiz "imagens/parede-vertical.bin"
