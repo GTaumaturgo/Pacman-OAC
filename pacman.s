@@ -1,9 +1,14 @@
 .eqv 
 
 .data	
+	charA: .byte 65
 	charB: .byte 66
 	charE: .byte 69
 	charF: .byte 70
+	charL: .byte 76
+	charP: .byte 80
+	charR: .byte 82
+	charV: .byte 86
 	
 	char0: .byte 48
 	char1: .byte 49
@@ -12,7 +17,16 @@
 	char4: .byte 52
 	char5: .byte 53
 	char6: .byte 54
-	
+	pacmanX:  .space 1
+	pacmanY:  .space 1
+	azulX: .space 1
+	azulY: .space 1
+	rosaX: .space 1
+	rosaY: .space 1
+	laranjaX: .space 1
+	laranjaY: .space 1
+	vermelhoX: .space 1
+	vermelhoY: .space 1
 	bitmap: .word 0xff000000
 	estou_aq: .asciiz "Estou aqui\n" # mensagem para debug
 	erro_arq: .asciiz "ERRO: Erro ao abrir arquivo, provavelmente o arquivo nao foi encontrado\n"
@@ -20,9 +34,9 @@
 	# arquivos para carregar mapa na memória e as texturas corretamente
 	#map_width: .space  1
 	#map_height: .space 1
-	mapbin: .asciiz "mapas/simples.bin"
+	mapbin: .asciiz "mapas/teste.bin"
 	bufbin: .space 768
-	maptex: .asciiz "mapas/simples.texture"
+	maptex: .asciiz "mapas/teste.texture"
 	buftex: .space 768
 	# arquivos com as texturas.
 	tex0: .asciiz "imagens/parede-vertical.bin"
@@ -45,6 +59,22 @@
 	buf8: .space 100
 	tex9: .asciiz "imagens/parede-vazia.bin"
 	buf9: .space 100
+	tex10: .asciiz "imagens/pacman-baixo.bin"
+	buf10: .space 100
+	tex11: .asciiz "imagens/pacman-cima.bin"
+	buf11: .space 100
+	tex12: .asciiz "imagens/pacman-direita.bin"
+	buf12: .space 100
+	tex13: .asciiz "imagens/pacman-esquerda.bin"
+	buf13: .space 100
+	tex14: .asciiz "imagens/fantasma-azul.bin"
+	buf14: .space 100
+	tex15: .asciiz "imagens/fantasma-rosa.bin"
+	buf15: .space 100
+	tex16: .asciiz "imagens/fantasma-laranja.bin"
+	buf16: .space 100
+	tex17: .asciiz "imagens/fantasma-vermelho.bin"
+	buf17: .space 100
 	
 .text
 	jal carrega_texturas
@@ -57,6 +87,7 @@
 	syscall
 # essa rotina desenha o mapa inicialmente,
 # a partir das informações carregadas em memória
+
 desenha_mapa:
 	addi $sp, $sp, -4
 	
@@ -100,6 +131,36 @@ loop_desenha2:
 	beq $t2, $t3, fim_loop_desenha2
 	lb $t8, 0($a1) # t8 = caractere da textura
 	# e possiv/el otimizar trocando os beqs por bnes e inserindo vários labels
+	
+	addi $sp, $sp, -4
+	sw   $a0, 0($sp)
+	move $a0, $t8
+	li $v0, 1
+	syscall
+	lw $a0, 0($sp)
+	addi $sp, $sp, 4
+	
+	
+	lb $t9, charP
+	la $a2, buf13
+	beq $t8, $t9, seta_pos_pacman
+	
+	lb $t9, charA
+	la $a2, buf14
+	beq $t8, $t9, seta_pos_azul
+	
+	lb $t9, charR
+	la $a2, buf15
+	beq $t8, $t9, seta_pos_rosa
+	
+	lb $t9, charL
+	la $a2, buf16
+	beq $t8, $t9, seta_pos_laranja
+	
+	lb $t9, charV
+	la $a2, buf17
+	beq $t8, $t9, seta_pos_vermelho
+	
 	lb $t9, charE
 	la $a2, buf9
 	beq $t8, $t9, apos_escolher
@@ -141,6 +202,7 @@ loop_desenha2:
 	beq $t8, $t9, apos_escolher
 	
 	j erro_reconhecimento_textura
+	
 apos_escolher:	
 	jal desenha3
 
@@ -152,6 +214,29 @@ fim_loop_desenha2:
 	lw $ra, 0($sp)
 	addi $sp, $sp, 4
 	jr $ra
+
+seta_pos_pacman:
+	sb $t0, pacmanY	
+	sb $t2, pacmanX
+	j apos_escolher
+seta_pos_azul:
+	sb $t0, azulY
+	sb $t2, azulX
+	jal debug
+	j apos_escolher
+seta_pos_rosa:
+	sb $t0, rosaY
+	sb $t2, rosaX
+	j apos_escolher
+seta_pos_laranja:
+	sb $t0, laranjaY
+	sb $t2, laranjaX
+	j apos_escolher
+seta_pos_vermelho:
+	sb $t0, vermelhoY
+	sb $t2, vermelhoX
+	j apos_escolher
+	
 
 desenha3:
 	addi $sp, $sp, -4
@@ -262,6 +347,39 @@ carrega_texturas: addi $sp, $sp, -4
 		  la $a0, tex9
 		  la $a1, buf9
 		  jal le_arquivo
+		  
+		  la $a0, tex10
+		  la $a1, buf10
+		  jal le_arquivo
+		  
+		  la $a0, tex11
+		  la $a1, buf11
+		  jal le_arquivo
+		  
+		  la $a0, tex12
+		  la $a1, buf12
+		  jal le_arquivo
+		  
+		  la $a0, tex13
+		  la $a1, buf13
+		  jal le_arquivo
+		  
+		  la $a0, tex14
+		  la $a1, buf14
+		  jal le_arquivo
+		  
+		  la $a0, tex15
+		  la $a1, buf15
+		  jal le_arquivo
+		  
+		  la $a0, tex16
+		  la $a1, buf16
+		  jal le_arquivo
+		  
+		  la $a0, tex17
+		  la $a1, buf17
+		  jal le_arquivo
+		  
 		
 		  lw $ra, 0($sp)
 		  addi $sp, $sp, 4
@@ -279,6 +397,7 @@ erro_reconhecimento_textura:
 	la $a0, erro_text
 	li $v0, 4
 	syscall
+	
 	li $v0, 10
 	syscall
 	

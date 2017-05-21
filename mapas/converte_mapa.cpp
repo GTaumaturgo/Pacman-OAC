@@ -78,19 +78,32 @@ int main(){
 	for (int i = 0; i < altura; ++i)
 	{
 		for (int j = 0; j < largura; ++j)
-		{	if(mapa[i][j] == 'E')
+		{	
+			// printf("%c",mapa[i][j]);
+			if(mapa[i][j] == 'E')
 				texture << 'E';
-			if(mapa[i][j] == 'F'){
+			else if(mapa[i][j] == 'F'){
 				texture << 'F';
 			}
 			else if(mapa[i][j] == 'B'){
 				texture << 'B';
 			}
+			else if(mapa[i][j] == 'P')
+				texture << 'P';
+			else if(mapa[i][j] == 'A')
+				texture << 'A';
+			else if(mapa[i][j] == 'R')
+				texture << 'R';
+			else if(mapa[i][j] == 'L')
+				texture << 'L';
+			else if(mapa[i][j] == 'V')
+				texture << 'V';
 			else if(mapa[i][j] == 'W'){
 				char t = getTextura(i,j);
 				texture << t;
 			}
 		}
+		// printf("\n");
 	}
 
 	txt.close();
