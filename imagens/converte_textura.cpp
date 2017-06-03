@@ -12,52 +12,61 @@ int main(){
 	ofstream out;
 	string nome_bmp;
 	string nome_bin;
-	printf("Digite o nome arquivo que quer gerar o .bin\n");
-	cin >> nome_bmp;
+	vector<string> nomes;
+	nomes.push_back("comida");
+	nomes.push_back("comida-grande");
+	nomes.push_back("fantasma-azul");
+	nomes.push_back("fantasma-laranja");
+	nomes.push_back("fantasma-rosa");
+	nomes.push_back("fantasma-vermelho");
+	nomes.push_back("pacman-cima");
+	nomes.push_back("pacman-baixo");
+	nomes.push_back("pacman-esquerda");
+	nomes.push_back("pacman-direita");
+	nomes.push_back("parede");
+	for(auto nome: nomes){
 
-	nome_bin = nome_bmp + ".bin";
-	nome_bmp = nome_bmp + ".bmp";
+		nome_bin = nome + ".bin";
+		nome_bmp = nome + ".bmp";
 
-	in.open(nome_bmp,ifstream::binary);
-	out.open(nome_bin,ofstream::binary);
+		in.open(nome_bmp,ifstream::binary);
+		out.open(nome_bin,ofstream::binary);
 
-	in.seekg(18,in.beg);
-	char largura;
-	char altura;
-	in.read(&largura,1);
-	in.seekg(22,in.beg);
-	in.read(&altura,1);
-	unsigned char acc;
-	// acc = largura;
-	// out << acc;
-	// acc = altura;
-	// out << acc;	
-	unsigned char aux;
-	in.seekg(54,in.beg);
-	for (int i = altura-1; i > -1; --i)
-	{                                   // NUMERO DE 0S QUE APARECEM NO MEIO
-		in.seekg(54 + (largura*i*3) + ((4 - (largura % 4)) % 4) * (i),in.beg);
-		for (int j = 0; j < largura; ++j)
-		{
-			acc = 0;		 		
-			in >> aux;
-			aux = aux/32;
-			aux = (char)aux;
-			acc += aux;
-			in >> aux;
-			aux = aux/32;
-			aux = (char)aux;
-			aux = aux << 3;
-			acc += aux;
-			in >> aux;
-			aux = aux/64;
-			aux = (char)aux;
-			acc += aux << 6;
-			out << acc;
+		in.seekg(18,in.beg);
+		char largura;
+		char altura;
+		in.read(&largura,1);
+		in.seekg(22,in.beg);
+		in.read(&altura,1);
+		unsigned char acc;
+		// acc = largura;
+		// out << acc;
+		// acc = altura;
+		// out << acc;	
+		unsigned char aux;
+		in.seekg(54,in.beg);
+		for (int i = altura-1; i > -1; --i)
+		{                                   // NUMERO DE 0S QUE APARECEM NO MEIO
+			in.seekg(54 + (largura*i*3) + ((4 - (largura % 4)) % 4) * i,in.beg);
+			for (int j = 0; j < largura; ++j)
+			{
+				acc = 0;		 		
+				in >> aux;
+				aux = aux/64;
+				acc += aux << 6;
+				in >> aux;
+				aux = aux/32;
+				aux = aux << 3;
+				acc += aux;
+				in >> aux;
+				aux = aux/32;
+				acc += aux;
+				out << acc;
+			}
 		}
+
+		in.close();
+		out.close();
+
 	}
-
-	in.close();
-	out.close();
-
 }

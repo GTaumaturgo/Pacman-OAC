@@ -11,25 +11,6 @@ char largura;
 char altura;
 char mapa[40][40];
 
-char getTextura(int i, int j){
-
-	if(i > 0 and i < altura - 1 and mapa[i-1][j] == 'W' and mapa[i+1][j] == 'W')
-		return '0'; // parede vertical
-	if(j > 0 and j < largura - 1 and mapa[i][j-1] == 'W' and mapa[i][j+1] == 'W')
-		return '1'; // parede horizontal
-	if(i > 0 and j < largura - 1 and mapa[i-1][j] == 'W' and mapa[i][j+1] == 'W')
-		return '2'; // parede curva cima-direita 
-	if(j > 0 and i < altura - 1 and mapa[i+1][j] == 'W' and mapa[i][j-1] == 'W')
-		return '3'; // parede curva baixo-esquerda
-	if(i < altura - 1 and j < largura - 1 and mapa[i+1][j] == 'W' and mapa[i][j+1] == 'W')
-		return '4'; // parede curva baixo-direita
-	if(i > 0 and j > 0 and mapa[i-1][j] == 'W' and mapa[i][j-1] == 'W')
-		return '5'; // parede curva cima-esquerda
-	return '6'; // parede sozinha
-
-}
-
-
 
 int main(){
 	string nome_txt;
@@ -99,8 +80,7 @@ int main(){
 			else if(mapa[i][j] == 'V')
 				texture << 'V';
 			else if(mapa[i][j] == 'W'){
-				char t = getTextura(i,j);
-				texture << t;
+				texture << 'W';
 			}
 		}
 		// printf("\n");
