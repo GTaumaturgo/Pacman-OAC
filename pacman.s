@@ -1,17 +1,25 @@
 .eqv 
 
 .data	
+	char0: .byte 48
+	char1: .byte 49
+	char2: .byte 50
+	char3: .byte 51
+	char4: .byte 52
 	charA: .byte 65
 	charB: .byte 66
 	charE: .byte 69
 	charF: .byte 70
 	charL: .byte 76
 	charP: .byte 80
+	charQ: .byte 81
 	charR: .byte 82
 	charV: .byte 86
 	charW: .byte 87
 	pacmanX:  .space 1
 	pacmanY:  .space 1
+	n_jog: .space 1
+	n_fant:.space 1
 	azulX: .space 1
 	azulY: .space 1
 	rosaX: .space 1
@@ -21,6 +29,7 @@
 	vermelhoX: .space 1
 	vermelhoY: .space 1
 	bitmap: .word 0xff000000
+	teclado:.word 0xff100004
 	estou_aq: .asciiz "Estou aqui\n" # mensagem para debug
 	erro_text:.asciiz "ERRO: algum caractere nao pode ser reconhecido ao aplicar as texturas"
 	
@@ -59,14 +68,112 @@
 	tex17: .byte 0x00, 0x00, 0x05, 0x07, 0x07, 0x05, 0x00, 0x00, 0x00, 0x05, 0x07, 0x07, 0x07, 0x07, 0x05, 0x00, 0x01, 0x0F, 0xA7, 0x07, 0x07, 0xA7, 0x0F, 0x01, 0x01, 0x05, 0xAD, 0x0F, 0xE4, 0x9B, 0xC0, 0x00, 0x01, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x01, 0x01, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x01, 0x01, 0x06, 0x06, 0x07, 0x07, 0x06, 0x06, 0x01, 0x00, 0x00, 0x00, 0x30, 0x30, 0x00, 0x00, 0x00
 	
 .text
-		
+	jal menu
 	jal desenha_mapa
-	
 	li $v0, 10
 	syscall
+	
+# preenche tela recebe
+# cor (32 bits) em $a0
+preenche_tela:
+	lw $a2, bitmap
+	or $a1, $a2, $zero
+	addi $a1, $a1, 76800
+loop_preenche_tela:
+	beq $a2, $a1, return
+	sw $a0, 0($a2)
+	addi $a2, $a2, 4
+	j loop_preenche_tela
+	
+menu:
+	addi $sp, $sp, -4
+	sw $ra, 0($sp)
+	li $a0, 0x00000000
+	jal preenche_tela 
+loop_menu:	
+	li $v0, 12
+	syscall
+	
+	lb $t0, char1
+	beq $v0, $t0, menu_escolhe_jogadores
+	
+	lb $t0, char2
+	beq $v0, $t0, menu_escolhe_fantasmas
+	
+	#lb $t0, char3
+	#beq $v0, $t0, menu_escolhe mapa
+	lb $t0, char4
+	beq $v0, $t0, sair_do_jogo
+	
+	j loop_menu
+
+menu_escolhe_jogadores:
+	addi $sp, $sp, -4
+	sw $ra, 0($sp)
+	li $a0, 0x00000000
+	jal preenche_tela
+loop_menu_escolhe_jogadores:
+	li $v0, 12
+	syscall  # le char
+	lb $t0, char0 # to = '0'
+	sub $t0, $v0, $t0 # t0 = v0 - '0', ou seja, o proprio numero de jogadores
+	li $t1, 5 # t1 = 5
+	slt $t1, $t0, $t1 # t0 < 5 ? 
+	beq $t1, $zero, loop_menu_escolhe_jogadores # se nao for, le de novo porque o máximo é 4
+	
+	li $t1, 0 # t1 = 1
+	sgt $t1, $t0, $t1 # t0 > 0 ?
+	beq $t1, $zero, loop_menu_escolhe_jogadores # se nao for, le de novo porque o mínimo é 1
+	# Caso não haja problema, armazene o número em n_jog
+	sb $t0, n_jog
+fim_loop_menu_escolhe_jogadores:
+	lw $ra, 0($sp)
+	addi $sp, $sp, 4
+	jr $ra
+
+
+menu_escolhe_fantasmas:
+	addi $sp, $sp, -4
+	sw $ra, 0($sp)
+	li $a0, 0x00000000
+	jal preenche_tela
+loop_menu_escolhe_fantasmas:
+	li $v0, 12
+	syscall  # le char
+	lb $t0, char0 # to = '0'
+	sub $t0, $v0, $t0 # t0 = v0 - '0', ou seja, o proprio numero de jogadores
+	li $t1, 5 # t1 = 5
+	slt $t1, $t0, $t1 # t0 < 5 ? 
+	beq $t1, $zero, loop_menu_escolhe_fantasmas # se nao for, le de novo porque o máximo é 4
+	
+	li $t1, 0 # t1 = 1
+	sgt $t1, $t0, $t1 # t0 > 0 ?
+	beq $t1, $zero, loop_menu_escolhe_fantasmas # se nao for, le de novo porque o mínimo é 1
+	# Caso não haja problema, armazene o número em n_jog
+	sb $t0, n_fant
+fim_loop_menu_escolhe_fantasmas:
+	lw $ra, 0($sp)
+	addi $sp, $sp, 4
+	jr $ra
+	
+		
+			
+	
+sair_do_jogo:
+	li $v0, 10
+	syscall	
+		
+		
+
+	
+	
+	
+	
+	
+	
+
 # essa rotina desenha o mapa inicialmente,
 # a partir das informações carregadas em memória
-
 desenha_mapa:
 	addi $sp, $sp, -4
 	
@@ -110,8 +217,6 @@ loop_desenha2:
 	beq $t2, $t3, fim_loop_desenha2
 	lb $t8, 0($a1) # t8 = caractere da textura
 	# e possiv/el otimizar trocando os beqs por bnes e inserindo vários labels
-	
-	
 	lb $t9, charW
 	la $a2, tex0
 	beq $t8, $t9, apos_escolher
