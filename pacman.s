@@ -81,14 +81,14 @@ preenche_tela:
 	addi $a1, $a1, 76800
 loop_preenche_tela:
 	beq $a2, $a1, return
-	sw $a0, 0($a2)
-	addi $a2, $a2, 4
+	sb $a0, 0($a2)
+	addi $a2, $a2, 1
 	j loop_preenche_tela
 	
 menu:
 	addi $sp, $sp, -4
 	sw $ra, 0($sp)
-	li $a0, 0x00000000
+	li $a0, 0x15      #bf amarelo quse branco; 7f amarelo fraco; 1f laranja; 0f vermelho; 37 amarelo forte; 3b verde fraco; 3d verde amarelo; 3e amarelo esverdeado
 	jal preenche_tela 
 loop_menu:	
 	li $v0, 12
