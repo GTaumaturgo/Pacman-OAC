@@ -67,12 +67,176 @@
 	tex16: .byte 0xC7, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x00, 0xC7, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0xC7, 0xC7, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0xC7, 0x20, 0x20, 0x27, 0x20, 0x20, 0x20, 0x20, 0xC7, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0xC7, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0xC7, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0xC7, 0xC7, 0x20, 0x20, 0x20, 0x20, 0xC7, 0xC7
 	tex17: .byte 0x00, 0x00, 0x05, 0x07, 0x07, 0x05, 0x00, 0x00, 0x00, 0x05, 0x07, 0x07, 0x07, 0x07, 0x05, 0x00, 0x01, 0x0F, 0xA7, 0x07, 0x07, 0xA7, 0x0F, 0x01, 0x01, 0x05, 0xAD, 0x0F, 0xE4, 0x9B, 0xC0, 0x00, 0x01, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x01, 0x01, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x01, 0x01, 0x06, 0x06, 0x07, 0x07, 0x06, 0x06, 0x01, 0x00, 0x00, 0x00, 0x30, 0x30, 0x00, 0x00, 0x00
 	
+	IRDA_DECODER: .word 0xFFFF049C
+	PACMAN_DIR:   .space 4   #1 byte para cada PacMan
+
+	END_OPC_MENU: .space 20 #x = MENU_IND_MAX + 1 (de 0 até MENU_IND_MAX)
 .text
-	jal menu
-	jal desenha_mapa
-	li $v0, 10
-	syscall
-	
+	#jal menu
+	#jal desenha_mapa
+	#li $v0, 10
+	#syscall
+
+menu_ini:	la $t1, END_OPC_MENU
+		la $t0, jogo_ini
+		sw $t0, 0($t1)
+		la $t0, menu_escolhe_jogadores
+		sw $t0, 4($t1)
+		la $t0, menu_escolhe_fantasmas
+		sw $t0, 8($t1)
+		#la $t0, menu_escolhe_mapa
+		#sw $t0, 12($t1)
+		la $t0, sair_do_jogo
+		sw $t0, 16($t1)
+		
+		li $a0, 0x15      #bf amarelo quse branco; 7f amarelo fraco; 1f laranja; 0f vermelho; 37 amarelo forte; 3b verde fraco; 3d verde amarelo; 3e amarelo esverdeado
+		jal preenche_tela
+		
+		la $s7, IRDA_DECODER
+		lw $s7, 0($s7) #endereco do decoder
+		
+		move $s0, $zero #indice atual no menu
+		li $s1, 3 #Tamanho do menu = $s1 + 1, de 0 até $s1
+menu:
+		lw $v0, 0($s7) #Recebe o IrDA
+		
+		andi $t1, $v0, 0x80000000
+		bne $t1, $zero, next #Pule se for um comando invalido
+		
+		la $t0, end_bas_menu #Enderco basico do jump (menu)
+		srl $t1, $v0, 16 #Deslocamento
+		add $t0, $t0, $t1 #End bas + desl
+		
+		la $a0, menu #Para utilizar vol_mais, vol_menos, ch_mais, ch_menos
+		
+		jr $t0
+		nop #Devido ao Pipeline
+end_bas_menu:	
+		j enter_menu
+		j cima_menu
+		j baixo_menu
+		j esquerda_menu
+		j direita_menu
+		j casa_menu
+		j desligar
+		j vol_mais
+		j vol_menos
+		j ch_mais
+		j ch_menos
+		j menu
+		j menu
+		j menu
+		j menu
+		j menu
+enter_menu:
+		la $t0, END_OPC_MENU
+		sll $t1, $s0, 2 #4 * indice
+		add $t0, $t0, $t1 #inicio do vetor + indice
+		
+		lw $t1, 0($t0)
+		la $ra, menu_ini #Para o retorno
+		jr $t1
+cima_menu:
+		beq $s0, $zero, menu #Se for zero nao diminui
+		addi $s0, $s0, -1
+		j menu
+baixo_menu:
+		beq $s0, $s1, menu #Se for a maximo nao aumenta
+		addi $s0, $s0, 1
+		j menu
+esquerda_menu:
+		j menu
+direita_menu:
+		j menu
+casa_menu:
+		j menu
+
+jogo_ini: #TODO: salvar e recuperar $ra
+		addi $sp, $sp, -4
+		sw $ra, 0($sp)
+		
+		jal desenha_mapa
+		
+		la $s7, IRDA_DECODER
+		lw $s7, 0($s7) #endereco do decoder
+jogo:
+		lw $v0, 0($s7) #Recebe o IrDA
+		
+		andi $t1, $v0, 0x80000000
+		bne $t1, $zero, next #Pule se for um comando invalido
+		
+		la $t0, end_bas_jogo #Enderco basico do jump (jogo)
+		srl $t1, $v0, 16 #Deslocamento
+		add $t0, $t0, $t1 #End bas + desl
+		
+		la $a0, next #Para utilizar vol_mais, vol_menos, ch_mais, ch_menos
+		
+		jr $t0
+		nop #Devido ao Pipeline
+		
+end_bas_jogo:	
+		j enter_jogo
+		j cima_jogo
+		j baixo_jogo
+		j esquerda_jogo
+		j direita_jogo
+		j casa_jogo
+		j desligar
+		j vol_mais
+		j vol_menos
+		j ch_mais
+		j ch_menos
+		j next
+		j next
+		j next
+		j next
+		j next
+next:	#se nao foi apertado nenhum botao
+	j jogo
+
+enter_jogo: #Nenhuma funcionalidade
+		j next
+
+cima_jogo:
+		li $a0, 1
+		j escreve_dir
+baixo_jogo:
+		li $a0, 2
+		j escreve_dir
+esquerda_jogo:
+		li $a0, 2
+		j escreve_dir
+direita_jogo:
+		li $a0, 2
+		j escreve_dir
+escreve_dir:
+		la $t0, PACMAN_DIR #vetor na memoria das direcoes para as quais os PacMan vao
+		andi $t1, $v0, 0x0000FFFF
+		add $t0, $t0, $t1
+		sw $a0, 0($t0)
+		j next
+casa_jogo:
+		lw $ra, 0($sp)
+		addi $sp, $sp, 4
+		jr $ra #Retorna para o menu
+
+desligar:	#TODO: apagar dados e colocar tela preta, mais loop
+		la $a0, menu
+		jr $a0
+vol_mais: #Nenhuma funcionalidade
+		jr $a0
+
+vol_menos: #Nenhuma funcionalidade
+		jr $a0
+
+ch_mais: #Nenhuma funcionalidade
+		jr $a0
+
+ch_menos: #Nenhuma funcionalidade
+		jr $a0
+
+
+
 # preenche tela recebe
 # cor (32 bits) em $a0
 preenche_tela:
@@ -85,27 +249,27 @@ loop_preenche_tela:
 	addi $a2, $a2, 1
 	j loop_preenche_tela
 	
-menu:
-	addi $sp, $sp, -4
-	sw $ra, 0($sp)
-	li $a0, 0x15      #bf amarelo quse branco; 7f amarelo fraco; 1f laranja; 0f vermelho; 37 amarelo forte; 3b verde fraco; 3d verde amarelo; 3e amarelo esverdeado
-	jal preenche_tela 
-loop_menu:	
-	li $v0, 12
-	syscall
-	
-	lb $t0, char1
-	beq $v0, $t0, menu_escolhe_jogadores
-	
-	lb $t0, char2
-	beq $v0, $t0, menu_escolhe_fantasmas
-	
-	#lb $t0, char3
-	#beq $v0, $t0, menu_escolhe mapa
-	lb $t0, char4
-	beq $v0, $t0, sair_do_jogo
-	
-	j loop_menu
+#menu:
+#	addi $sp, $sp, -4
+#	sw $ra, 0($sp)
+#	li $a0, 0x15      #bf amarelo quse branco; 7f amarelo fraco; 1f laranja; 0f vermelho; 37 amarelo forte; 3b verde fraco; 3d verde amarelo; 3e amarelo esverdeado
+#	jal preenche_tela 
+#loop_menu:	
+#	li $v0, 12
+#	syscall
+#	
+#	lb $t0, char1
+#	beq $v0, $t0, menu_escolhe_jogadores
+#	
+#	lb $t0, char2
+#	beq $v0, $t0, menu_escolhe_fantasmas
+#	
+#	#lb $t0, char3
+#	#beq $v0, $t0, menu_escolhe mapa
+#	lb $t0, char4
+#	beq $v0, $t0, sair_do_jogo
+#	
+#	j loop_menu
 
 menu_escolhe_jogadores:
 	addi $sp, $sp, -4
