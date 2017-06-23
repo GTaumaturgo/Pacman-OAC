@@ -6,8 +6,9 @@ using namespace std;
 
 
 int main(){
-
-	int n = 1200;
+	int n;
+	printf("digite o numero de bytes\n");
+	cin >> n;
 	for (int i = 0; i < n; ++i)
 	{
 		char aux[10];
@@ -16,6 +17,6 @@ int main(){
 		if(i != n-1)
 			printf(", ");
 	}
-
+	printf("\n");
 
 }

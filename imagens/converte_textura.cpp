@@ -13,17 +13,20 @@ int main(){
 	string nome_bmp;
 	string nome_bin;
 	vector<string> nomes;
+	nomes.push_back("pacman");
+	nomes.push_back("preto");
 	nomes.push_back("comida");
 	nomes.push_back("comida-grande");
 	nomes.push_back("fantasma-azul");
 	nomes.push_back("fantasma-laranja");
 	nomes.push_back("fantasma-rosa");
 	nomes.push_back("fantasma-vermelho");
-	nomes.push_back("pacman-cima");
-	nomes.push_back("pacman-baixo");
-	nomes.push_back("pacman-esquerda");
-	nomes.push_back("pacman-direita");
-	nomes.push_back("parede");
+	nomes.push_back("canto1");
+	nomes.push_back("canto2");
+	nomes.push_back("canto3");
+	nomes.push_back("canto4");
+	nomes.push_back("horizontal");
+	nomes.push_back("vertical");
 	for(auto nome: nomes){
 
 		nome_bin = nome + ".bin";
