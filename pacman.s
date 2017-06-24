@@ -64,8 +64,7 @@
 	tex7: .byte 0x00, 0x00, 0x05, 0x07, 0x07, 0x05, 0x00, 0x00, 0x00, 0x05, 0x07, 0x07, 0x07, 0x07, 0x05, 0x00, 0x01, 0x0F, 0xA7, 0x07, 0x07, 0xA7, 0x0F, 0x01, 0x01, 0x05, 0xAD, 0x0F, 0xE4, 0x9B, 0xC0, 0x00, 0x01, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x01, 0x01, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x01, 0x01, 0x06, 0x06, 0x07, 0x07, 0x06, 0x06, 0x01, 0x00, 0x00, 0x00, 0x30, 0x30, 0x00, 0x00, 0x00
 	# preto
 	tex8: .byte 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-	tam_fila: .byte 0
-	fila: .space 1200 # fila guarda ate 700 vertices, deveria ser suficiente.
+	fila: .space 1800 # fila guarda ate 700 vertices, deveria ser suficiente.
 	vetor_pai: .space 2400 # cada vertice vai ter 1 pai
 	##### ate aqui esta alinhado
 	charponto: .byte 46  
@@ -119,15 +118,23 @@
 	azulX: .byte 17
 	azulY: .byte 13
 	azulvivo:  .byte 1
+	azul_pos_antigaX:
+	azul_pos_antigaY:
 	rosaX: .byte 22
 	rosaY: .byte 13
+	rosa_pos_antigaX:
+	rosa_pos_antigaY:
 	rosavivo: .byte 1
 	laranjaX: .byte 17
 	laranjaY: .byte 16
 	laranjavivo: .byte 1
+	laranja_pos_antigaX:
+	laranja_pos_antigaY:
 	vermelhoX: .byte 22
 	vermelhoY: .byte 16
 	vermelhovivo: .byte 1
+	vermelho_pos_antigaX:
+	vermelho_pos_antigaY:
 	bitmap: .word 0xff000000
 	teclado:.word 0xff100004
 	estou_aq: .asciiz "Estou aqui\n" # mensagem para debug
@@ -138,13 +145,12 @@
 	li $v0, 10
 	syscall
 
-# bfs retorna em $v0 a direção para qual o fantasma deve ir
+# bfs retorna em $v0 e $v1 a proxima posicao do fantasma
 # recebe
 # posicao do fantasmaX em $a0
 # posicao do fantasmaY em $a1
 bfs:
 	addi $sp, $sp, -24
-	
 	sw   $ra, 0($sp)
 	sw   $s0, 4($sp)
 	sw   $s1, 8($sp)
@@ -172,8 +178,31 @@ loop_bfs:
 	lb $t1, 1($s3) # desenfilera, t0 = x t1 = y
 	addi $s3, $s3, 2 # atualiza inicio
 	
-	
-	
+	lb $t2, pacman1X
+	lb $t3, pacman1Y	
+	bne $t2, $t0, pula_loop_bfs01
+	bne $t3, $t1, pula_loop_bfs01 # se a posicao desenfileirada for a mesma do pacman1
+	j  loop_acha_pai
+pula_loop_bfs01:
+	lb $t2, pacman2X
+	lb $t3, pacman2Y	
+	bne $t2, $t0, pula_loop_bfs02
+	bne $t3, $t1, pula_loop_bfs02 # se a posicao desenfileirada for a mesma do pacman1
+	j loop_acha_pai
+pula_loop_bfs02:
+	lb $t2, pacman3X
+	lb $t3, pacman3Y	
+	bne $t2, $t0, pula_loop_bfs03
+	bne $t3, $t1, pula_loop_bfs03 # se a posicao desenfileirada for a mesma do pacman1
+	j loop_acha_pai
+pula_loop_bfs03:
+	lb $t2, pacman4X
+	lb $t3, pacman4Y	
+	bne $t2, $t0, pula_loop_bfs04
+	bne $t3, $t1, pula_loop_bfs04 # se a posicao desenfileirada for a mesma do pacman1
+	j loop_acha_pai
+pula_loop_bfs04:
+
 	li $t2, 40
 	mult $t2, $t1
 	mflo $t2  #t2 =  y * 40
@@ -187,7 +216,7 @@ loop_bfs:
 	lb $t4, 0($t3)     # t4 = char acima do atual
 	lb $t5, charW
 	beq $t4, $t5, pula_loop_bfs1 # se for parede, nao vai enfileirar.
-	
+		
 	addi $t2, $t1, -1
 	li $t6, 40
 	mult $t6, $t2
@@ -200,9 +229,13 @@ loop_bfs:
 	addi $t7, $0, -1
 	bne  $t5, $t7, pula_loop_bfs1 # se tiver pai, ou seja, se ja foi visitado, pula
 	
+	sb   $t0, 0($t6) # atualiza vetor_pai
+	sb   $t1, 1($t6)
+	  
 	sb   $t0, 0($s2)
 	sb   $t2, 1($s2)
-	addi $s2, $s2, 2 # enfilera	
+	addi $s2, $s2, 2 # enfilera
+		
 pula_loop_bfs1:
 	li $t2, 40
 	mult $t2, $t1
@@ -228,6 +261,10 @@ pula_loop_bfs1:
 	lb   $t5, 0($t6)
 	addi $t7, $0, -1
 	bne  $t5, $t7, pula_loop_bfs2 # se tiver pai, ou seja, se ja foi visitado, pula
+	
+	sb   $t0, 0($t6) # atualiza vetor_pai
+	sb   $t1, 1($t6)
+	
 	
 	sb   $t0, 0($s2)
 	sb   $t2, 1($s2)
@@ -258,6 +295,9 @@ pula_loop_bfs2:
 	addi $t7, $0, -1
 	bne  $t5, $t7, pula_loop_bfs3 # se tiver pai, ou seja, se ja foi visitado, pula
 	
+	sb   $t0, 0($t6) # atualiza vetor_pai
+	sb   $t1, 1($t6)
+	
 	sb   $t2, 0($s2)
 	sb   $t1, 1($s2)
 	addi $s2, $s2, 2 # enfilera
@@ -286,14 +326,38 @@ pula_loop_bfs3:
 	addi $t7, $0, -1
 	bne  $t5, $t7, pula_loop_bfs4 # se tiver pai, ou seja, se ja foi visitado, pula
 	
+	sb   $t0, 0($t6) # atualiza vetor_pai
+	sb   $t1, 1($t6)
+	
 	sb   $t2, 0($s2)
 	sb   $t1, 1($s2)
 	addi $s2, $s2, 2 # enfilera
 pula_loop_bfs4:
-
 	j loop_bfs
+
+loop_acha_pai:
+	
+	li $t2, 40
+	mult $t1, $t2
+	mflo $t2
+	add $t2, $t2, $t0
+	sll $t2, $t2, 1
+	
+	la $t8, vetor_pai
+	add $t2, $t2, $t8
+		
+	lb $t0, 0($t2)
+	lb $t1, 1($t2)
+	
+	bne $t0, $s0, pula_loop_acha_pai
+	bne $t1, $s1, pula_loop_acha_pai
+	
+	j  fim_bfs
+pula_loop_acha_pai:
+	move $v0, $t0
+	move $v1, $t1	
+	j loop_acha_pai
 fim_bfs:
-	# acha o pai
 	lw   $ra, 0($sp)
 	lw   $s0, 4($sp)
 	lw   $s1, 8($sp)
@@ -301,7 +365,7 @@ fim_bfs:
 	lw   $s3, 16($sp)
 	lw   $s4, 20($sp)
 	add $sp, $sp, 24
-	
+	jr $ra
 # essa rotina inicializa os elementos do vetor_pai com -1
 inicializa_vetor_pai:
 	la $t0, vetor_pai
@@ -500,6 +564,40 @@ sair_do_jogo:
 	li $v0, 10
 	syscall	
 
+atualiza_pos_fantasmas:
+	addi $sp, $sp, -4
+	sw   $ra, 0($sp)
+	
+	lb $a0, azulX
+	lb $a1, azulY
+	jal bfs
+	move $a0, $v0
+	sb $v0, azulX
+	sb $v1, azulY
+	
+	lb $a0, rosaX
+	lb $a1, rosaY
+	jal bfs
+	sb $v0, rosaX
+	sb $v1, rosaY
+	
+	lb $a0, laranjaX
+	lb $a1, laranjaY
+	jal bfs
+	sb $v0, laranjaX
+	sb $v1, laranjaY
+	
+	lb $a0, vermelhoX
+	lb $a1, vermelhoY
+	jal bfs
+	sb $v0, vermelhoX
+	sb $v1, vermelhoY
+	
+	lw   $ra, 0($sp)
+	add $sp, $sp, 4
+	jr $ra
+
+
 
 jogar:
 	jal desenha_mapa
@@ -531,7 +629,7 @@ loop_jogar:
 	lb $a0, pacman1dir
 	
 	jal atualiza_pos_pacmans
-	
+	jal atualiza_pos_fantasmas
 	
 	li $a0, 70
 	li $v0, 32
