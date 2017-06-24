@@ -118,23 +118,23 @@
 	azulX: .byte 17
 	azulY: .byte 13
 	azulvivo:  .byte 1
-	azul_pos_antigaX:
-	azul_pos_antigaY:
+	azul_pos_antigaX: .byte 1
+	azul_pos_antigaY: .byte 1
 	rosaX: .byte 22
 	rosaY: .byte 13
-	rosa_pos_antigaX:
-	rosa_pos_antigaY:
+	rosa_pos_antigaX: .byte 1
+	rosa_pos_antigaY: .byte 1
 	rosavivo: .byte 1
 	laranjaX: .byte 17
 	laranjaY: .byte 16
 	laranjavivo: .byte 1
-	laranja_pos_antigaX:
-	laranja_pos_antigaY:
+	laranja_pos_antigaX: .byte 1
+	laranja_pos_antigaY: .byte 1
 	vermelhoX: .byte 22
 	vermelhoY: .byte 16
 	vermelhovivo: .byte 1
-	vermelho_pos_antigaX:
-	vermelho_pos_antigaY:
+	vermelho_pos_antigaX: .byte 1
+	vermelho_pos_antigaY: .byte 1
 	bitmap: .word 0xff000000
 	teclado:.word 0xff100004
 	estou_aq: .asciiz "Estou aqui\n" # mensagem para debug
@@ -570,6 +570,8 @@ atualiza_pos_fantasmas:
 	
 	lb $a0, azulX
 	lb $a1, azulY
+	sb $a0, azul_pos_antigaX
+	sb $a1, azul_pos_antigaY
 	jal bfs
 	move $a0, $v0
 	sb $v0, azulX
@@ -577,18 +579,24 @@ atualiza_pos_fantasmas:
 	
 	lb $a0, rosaX
 	lb $a1, rosaY
+	sb $a0, rosa_pos_antigaX
+	sb $a1, rosa_pos_antigaY
 	jal bfs
 	sb $v0, rosaX
 	sb $v1, rosaY
 	
 	lb $a0, laranjaX
 	lb $a1, laranjaY
+	sb $a0, laranja_pos_antigaX
+	sb $a1, laranja_pos_antigaY
 	jal bfs
 	sb $v0, laranjaX
 	sb $v1, laranjaY
 	
 	lb $a0, vermelhoX
 	lb $a1, vermelhoY
+	sb $a0, vermelho_pos_antigaX
+	sb $a1, vermelho_pos_antigaY
 	jal bfs
 	sb $v0, vermelhoX
 	sb $v1, vermelhoY
@@ -663,6 +671,21 @@ redesenha_pos_antigas:
 	lb  $a1, pacman4_pos_antigaY
 	jal redesenha_pos_antiga
 	
+	lb  $a0, azul_pos_antigaX
+	lb  $a1, azul_pos_antigaY
+	jal redesenha_pos_antiga
+	
+	lb  $a0, rosa_pos_antigaX
+	lb  $a1, rosa_pos_antigaY
+	jal redesenha_pos_antiga
+	
+	lb  $a0, laranja_pos_antigaX
+	lb  $a1, laranja_pos_antigaY
+	jal redesenha_pos_antiga
+	
+	lb  $a0, vermelho_pos_antigaX
+	lb  $a1, vermelho_pos_antigaY
+	jal redesenha_pos_antiga
 	lw  $ra, 0($sp)
 	addi $sp, $sp, 4
 	jr $ra
